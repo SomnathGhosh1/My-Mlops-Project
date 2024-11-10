@@ -1,0 +1,41 @@
+# .github/workflows/ci-cd.yml
+name: CI/CD Pipeline for Model Training and Deployment
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to main branch
+  pull_request:
+    branches:
+      - main  # Trigger on pull request to main branch
+
+jobs:
+  train_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
+      - name: Set up Python environment
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+        
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt  # Install dependencies from requirements.txt
+        
+      - name: Train model
+        run: |
+          python train_model.py  # Train the model using the Python script
+        
+      - name: Save model artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: trained-model
+          path: model.joblib  # Upload the trained model as an artifact
+        
+      - name: Deploy model to Flask app
+        run: |
+          python app.py  # Start the Flask app (you may use a server like Gunicorn for production)
